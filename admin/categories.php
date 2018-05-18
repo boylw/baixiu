@@ -1,3 +1,58 @@
+<?php 
+    require_once "functions/get_current_info.php";
+    require_once "functions/mysql.php";
+    get_user_info();
+
+    //================分类添加
+    function check_post(){
+       if (empty($_POST['name'])){
+           $GLOBALS['message'] = "分类名为空";
+           return;
+        }
+        if (empty($_POST['slug'])){
+           $GLOBALS['message'] = "别名为空";
+           return;
+        }
+
+        $name = $_POST['name'];
+        $slug = $_POST['slug'];
+        $result = add_one("insert into categories(name,slug) values('$name','$slug')");
+        
+        if (!$result){
+            $GLOBALS['messages'] = "添加失败";
+        }
+    }
+    if ($_SERVER['REQUEST_METHOD'] === "POST"){
+      // echo 1;
+       check_post();
+    }
+
+    //===================分类删除
+
+    function check_get(){
+       if (empty($_GET['id'])){
+           $GLOBALS['message'] = "您删除的分类不存在!";
+           return;
+        }
+        //防止sql注入；
+        $id = (int)$_GET['id'];
+        $result = delete_one("delete from categories where id=$id");
+    
+        if (!$result){
+            $GLOBALS['message'] = "删除失败";
+        }
+    }
+    if ($_SERVER['REQUEST_METHOD'] === "GET"){
+      // echo 1;
+      if (isset($_GET['id'])){
+         check_get();
+      }
+      
+    }
+    //===================分类展示
+    $data = get_all('select * from categories');
+?>
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -24,13 +79,15 @@
       <div class="page-title">
         <h1>分类目录</h1>
       </div>
+      <?php if (isset($GLOBALS['message'])):?>
       <!-- 有错误信息时展示 -->
-      <!-- <div class="alert alert-danger">
-        <strong>错误！</strong>发生XXX错误
-      </div> -->
+      <div class="alert alert-danger";?>
+        <strong><?php echo "error:";?></strong><?php echo $GLOBALS['message'];?>
+      </div>
+      <?php endif;?>
       <div class="row">
         <div class="col-md-4">
-          <form>
+          <form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
             <h2>添加新分类目录</h2>
             <div class="form-group">
               <label for="name">名称</label>
@@ -39,7 +96,7 @@
             <div class="form-group">
               <label for="slug">别名</label>
               <input id="slug" class="form-control" name="slug" type="text" placeholder="slug">
-              <p class="help-block">https://zce.me/category/<strong>slug</strong></p>
+              <!-- <p class="help-block">https://zce.me/category/<strong>slug</strong></p> -->
             </div>
             <div class="form-group">
               <button class="btn btn-primary" type="submit">添加</button>
@@ -61,33 +118,17 @@
               </tr>
             </thead>
             <tbody>
+              <?php foreach ($data as $key):?>
               <tr>
                 <td class="text-center"><input type="checkbox"></td>
-                <td>未分类</td>
-                <td>uncategorized</td>
+                <td><?php echo $key['name'];?></td>
+                <td><?php echo $key['slug'];?></td>
                 <td class="text-center">
                   <a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
-                  <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+                  <a href="<?php echo $_SERVER['PHP_SELF']."?id=".$key['id'];?>" class="btn btn-danger btn-xs">删除</a>
                 </td>
               </tr>
-              <tr>
-                <td class="text-center"><input type="checkbox"></td>
-                <td>未分类</td>
-                <td>uncategorized</td>
-                <td class="text-center">
-                  <a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
-                  <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-center"><input type="checkbox"></td>
-                <td>未分类</td>
-                <td>uncategorized</td>
-                <td class="text-center">
-                  <a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
-                  <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-                </td>
-              </tr>
+              <?php endforeach;?>
             </tbody>
           </table>
         </div>

@@ -16,4 +16,4 @@ define('DB_USER','root');
 define('DB_PSWD','root');
 
 //=======数据库名字
-define('DB_NAME','baixiu-dev');
+define('DB_NAME','baixiu');

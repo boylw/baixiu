@@ -1,11 +1,8 @@
 <?php
-
-
    //-----0. 检查函数
 function check(){
 
    session_start();
-
    include '../config.php';
    //-----数据库操作
 
@@ -116,4 +113,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     </form>
   </div>
 </body>
+
+<script src="/static/assets/vendors/jquery/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+     $(function($){
+        $('#email').blur(function(){
+          var val = $('#email').val()
+          
+          if (val == '') return;
+            $.post('/admin/api/avatar.php',{email : val},function(data){
+               if (data!=''){
+                  $('.avatar').fadeOut(function(){
+                    $(this).on("load",function(){
+                      $(this).fadeIn();
+                    }).attr('src',data);
+                  })
+               }
+            })
+        })
+        
+     })
+</script>
 </html>
